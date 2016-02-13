@@ -1,6 +1,6 @@
 # SpriteShaderSample
 
-## ラインセンスについて
+## ライセンスについて
 ### ソースコード
 MIT
 
