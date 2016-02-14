@@ -9,6 +9,7 @@
 		_ShadowOffsetX ("Shadow Offset X", Float) = 0.02
 		_ShadowOffsetY ("Shadow Offset Y", Float) = -0.02
 		_ShadowColor ("Shadow Color", Color) = (0, 0, 0, 0.8)
+		_Alpha ("Alpha", Range(0.0, 1.0)) = 1
 	}
 
 	SubShader
@@ -26,7 +27,7 @@
 		Lighting Off
 		ZWrite Off
 		Fog { Mode Off }
-		Blend One OneMinusSrcAlpha
+		Blend SrcAlpha OneMinusSrcAlpha
 
 		Pass
 		{
@@ -56,6 +57,7 @@
 			half _ShadowOffsetX;
 			half _ShadowOffsetY;
 			fixed4 _ShadowColor;
+			half _Alpha;
 
 			v2f vert(appdata IN)
 			{
@@ -92,26 +94,35 @@
 
 			fixed4 frag(v2f IN) : SV_Target
 			{
+				const fixed THRESHOLD = 0.1;
+
 				// アウトライン色
+				fixed4 out_col = _OutLineColor;
 				_OutLineColor.a = 1;
 				half2 line_w = half2(_OutLineSpread, 0);
 				fixed4 line_col = SampleSpriteTexture(IN.texcoord + line_w.xy)
 							    + SampleSpriteTexture(IN.texcoord - line_w.xy)
 								+ SampleSpriteTexture(IN.texcoord + line_w.yx)
 								+ SampleSpriteTexture(IN.texcoord - line_w.yx);
-				_OutLineColor *= step(0.1, line_col.a);
-
-				// 影
-				fixed4 shadow = SampleSpriteTexture(IN.texcoord - half2(_ShadowOffsetX, _ShadowOffsetY));
-				_ShadowColor *= shadow.a;
+				_OutLineColor *= (line_col.a);
+				_OutLineColor.rgb = out_col.rgb;
 
 				// 元のテクスチャ
 				fixed4 base = SampleSpriteTexture(IN.texcoord) * IN.color;
 
+				// 影
+				fixed4 shadow = SampleSpriteTexture(IN.texcoord - half2(_ShadowOffsetX, _ShadowOffsetY));
+				shadow = _ShadowColor * max(0, sign(shadow.a - THRESHOLD));
+				shadow.a *= _ShadowColor.a;
+				_ShadowColor = shadow;
+
 				// 合成
 				fixed4 main_col = base;
-				main_col += _OutLineColor * (1 - main_col.a);
-				main_col += _ShadowColor * (1 - main_col.a);
+				main_col = lerp(main_col, _OutLineColor, (1 - main_col.a));
+				main_col.a = _Alpha * max(0, sign(main_col.a - THRESHOLD));
+
+				_ShadowColor.a = min(_Alpha, shadow.a); 
+				main_col = lerp(_ShadowColor, main_col, max(0, sign(main_col.a - THRESHOLD)));
 				return main_col;
 			}
 		ENDCG
