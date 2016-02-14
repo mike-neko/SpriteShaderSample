@@ -4,7 +4,7 @@
 	{
 		[PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
 		[MaterialToggle] PixelSnap ("Pixel snap", Float) = 0
-		_OutLineSpread ("OutLine Spread", Range(0.01, 0.05)) = 0.01
+		_OutLineSpread ("OutLine Spread", Range(0.00, 0.05)) = 0.01
 		_OutLineColor ("Outline Color", Color) = (1, 1, 1, 1)
 		_ShadowOffsetX ("Shadow Offset X", Float) = 0.02
 		_ShadowOffsetY ("Shadow Offset Y", Float) = -0.02
@@ -96,6 +96,9 @@
 			{
 				const fixed THRESHOLD = 0.1;
 
+				// 元のテクスチャ
+				fixed4 base = SampleSpriteTexture(IN.texcoord) * IN.color;
+
 				// アウトライン色
 				fixed4 out_col = _OutLineColor;
 				_OutLineColor.a = 1;
@@ -106,9 +109,7 @@
 								+ SampleSpriteTexture(IN.texcoord - line_w.yx);
 				_OutLineColor *= (line_col.a);
 				_OutLineColor.rgb = out_col.rgb;
-
-				// 元のテクスチャ
-				fixed4 base = SampleSpriteTexture(IN.texcoord) * IN.color;
+				_OutLineColor = lerp(base, _OutLineColor, max(0, sign(_OutLineSpread)));
 
 				// 影
 				fixed4 shadow = SampleSpriteTexture(IN.texcoord - half2(_ShadowOffsetX, _ShadowOffsetY));
