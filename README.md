@@ -1,5 +1,7 @@
 # SpriteShaderSample
 
+解説は[こちら](https://github.com/mike-neko/SpriteShaderSample)
+
 ## ライセンスについて
 ### ソースコード
 MIT
