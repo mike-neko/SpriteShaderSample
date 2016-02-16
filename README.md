@@ -1,6 +1,6 @@
 # SpriteShaderSample
 
-解説は[こちら](https://github.com/mike-neko/SpriteShaderSample)
+解説は[こちら](https://mike-neko.github.io/blog/sprite-shader/)
 
 ## ライセンスについて
 ### ソースコード
