@@ -1,4 +1,6 @@
-﻿Shader "Sprites/Custom/SpriteOutline"
+﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
+Shader "Sprites/Custom/SpriteOutline"
 {
 	Properties
 	{
@@ -67,7 +69,7 @@
 				tex -= (scale - 1) / 2;
 
 				v2f OUT;
-				OUT.vertex = mul(UNITY_MATRIX_MVP, IN.vertex);
+				OUT.vertex = UnityObjectToClipPos(IN.vertex);
 				OUT.texcoord = tex;
 				OUT.color = IN.color;
 				#ifdef PIXELSNAP_ON
